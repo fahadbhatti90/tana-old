@@ -1,0 +1,307 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="content-header row">
+        <div class="content-header-left col-md-6 col-12 mb-2">
+            <div class="row breadcrumbs-top">
+                <div class="col-12">
+                    <h2 class="content-header-title float-left mb-0">Confirmed PO</h2>
+                    <div class="breadcrumb-wrapper col-12">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item"> Confirmed PO
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-header-right text-md-right col-md-6 col-12 d-md-block ">
+            <div class="form-group breadcrum-right">
+                <div class="dropdown">
+                        <h3 class="content-header-title mb-0">
+                            <a class="customizer-toggle" href="javascript:void(0)"
+                               @if(Auth::user()->profile->profile_mode == "dark-layout")
+                               style="color: #C2C6DC;"
+                               @else
+                               style="color: #636363;"
+                                @endif
+                            >
+                                <i class="feather icon-calendar"></i> <span id="selected_date_text">-</span>
+                            </a>
+                            @if(Auth::user()->roles()->get()->first()->role_id == 1)
+                                &nbsp;
+                                <button name="po_plan_record" title="PO Plan" id="po_plan_record" class="btn-icon btn btn-warning btn-round btn-sm dropdown-toggle waves-effect waves-light" type="button">
+                                    <i class="feather icon-settings"></i>
+                                </button>
+                            @endif
+                        </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content-body">
+        <!-- account setting page start -->
+        <section id="page-account-settings">
+            <div class="row">
+                <div class="col-xl-5 col-md-12 col-sm-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-center align-items-center pb-0">
+                            <h4 class="card-title">Purchase Orders</h4>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-body pt-0">
+                                <div class="row">
+                                    <div class="col-sm-2 col-12 d-flex flex-column flex-wrap text-center">
+                                        <h2 class="font-large-1 text-bold-700 mt-2 mb-0" id="confirm_po_ytd">-</h2>
+                                        <small>YTD</small>
+                                        <small>Confirmed PO's</small>
+                                    </div>
+                                    <div class="col-sm-10 col-12 d-flex justify-content-center">
+                                        <div id="po-confirmed" style="min-height: 170px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="vendor1-card" hidden>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <h4 id="vendor1_chart_heading" class="card-title">-</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="vendor1_PO_confirmed_rate" width="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="vendor2-card" hidden>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <h4 id="vendor2_chart_heading" class="card-title">-</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="vendor2_PO_confirmed_rate" width="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="vendor3-card" hidden>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <h4 id="vendor3_chart_heading" class="card-title">-</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="vendor3_PO_confirmed_rate" width="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-xl-7 col-md-6 col-sm-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <h4 class="card-title">Weekly Confirmed PO's</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th style="white-space: nowrap;">Vendor Name</th>
+                                                <th style="white-space: nowrap;">Week <span id="week_3"></span></th>
+                                                <th style="white-space: nowrap;">Week <span id="week_2"></span></th>
+                                                <th style="white-space: nowrap;">Week <span id="week_1"></span></th>
+                                                <th style="white-space: nowrap;">Current Week</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="all_vendors_weekly_confirmed_PO">
+                                            <tr>
+                                                <td style='padding: 10px; white-space: nowrap;' align='center' colspan='6'>No data found</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- account setting page end -->
+    </div>
+@endsection
+
+@section('right-sidebar-content')
+    <div class="customizer d-md-block">
+        <a class="customizer-close" href="javascript:void(0)">
+            <i class="feather icon-x"></i>
+        </a>
+        <a class="customizer-toggle" href="javascript:void(0)">
+            <i class="feather icon-chevrons-left fa-fw white"></i>
+        </a>
+        <div class="customizer-content p-2 ps ps--active-y">
+            <h4 class="text-uppercase mb-0">Report Filter</h4>
+            <small></small>
+            <hr>
+            <div id="collapse-sidebar">
+                <div class="collapse-sidebar d-flex justify-content-between">
+                    <div class="collapse-option-title">
+                        <h5 class="pt-25">Unit/Dollar</h5>
+                    </div>
+                    <div class="collapse-option-switch custom-switch-warning">
+                        <div class='custom-control custom-switch custom-control-inline'>
+                            <input type='checkbox' class='status custom-control-input' style='background-color: #FF9F43;' name='dollar-unit-switch' id='dollar-unit-switch' checked/>
+                            <label class='custom-control-label' for='dollar-unit-switch'>
+                                <span class="switch-text-right"></span>
+                                <span class="switch-text-left">$</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <form method="post" id="top3_vendor_filter_form">
+                <div class="col-12 mb-1">
+                    <h5>Calender @csrf</h5>
+                    <input type='hidden' id="filter_range" name="filter_range" value="1"/>
+                    <div class="input-group">
+                        <input type='text' id='filter_range_picker' name='filter_range_picker' placeholder="Select Range" class="form-control" aria-describedby="button-addon2"/>
+                        <input type='hidden' id="ed_filter_date_range" name="ed_filter_date_range" class="form-control pickadate" aria-describedby="button-addon2"/>
+                        <div class="input-group-append" id="button-addon2">
+                            <button type="submit" name="change_report_vendor" id="change_report_vendor" class="btn btn-warning"><i class="feather icon-chevrons-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+                <div class="col-12 mb-1">
+                    <h5>Select 3 vendors</h5>
+                    <select class="form-control" id="vendor_filter_vendor" name="vendor_filter_vendor[]" multiple="multiple" >
+                        @if(sizeof($platinumVendors) > 0)
+                            <optgroup label="Platinum Vendors">
+                                @foreach($platinumVendors as $vendor)
+                                    <option value="{{ $vendor->rdm_vendor_id }}"
+                                            @if($edVendor->fk_vendor1_id_confirm_po == $vendor->rdm_vendor_id || $edVendor->fk_vendor2_id_confirm_po == $vendor->rdm_vendor_id || $edVendor->fk_vendor3_id_confirm_po == $vendor->rdm_vendor_id )
+                                            selected
+                                            @endif
+                                    >{{ $vendor->vendor_name." - ".$vendor->domain }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                        @if(sizeof($goldVendors) > 0)
+                            <optgroup label="Gold Vendors">
+                                @foreach($goldVendors as $vendor)
+                                    <option value="{{ $vendor->rdm_vendor_id }}"
+                                            @if($edVendor->fk_vendor1_id_confirm_po == $vendor->rdm_vendor_id || $edVendor->fk_vendor2_id_confirm_po == $vendor->rdm_vendor_id || $edVendor->fk_vendor3_id_confirm_po == $vendor->rdm_vendor_id )
+                                            selected
+                                            @endif
+                                    >{{ $vendor->vendor_name." - ".$vendor->domain }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                        @if(sizeof($silverVendors) > 0)
+                            <optgroup label="Silver Vendors">
+                                @foreach($silverVendors as $vendor)
+                                    <option value="{{ $vendor->rdm_vendor_id }}"
+                                            @if($edVendor->fk_vendor1_id_confirm_po == $vendor->rdm_vendor_id || $edVendor->fk_vendor2_id_confirm_po == $vendor->rdm_vendor_id || $edVendor->fk_vendor3_id_confirm_po == $vendor->rdm_vendor_id )
+                                            selected
+                                            @endif
+                                    >{{ $vendor->vendor_name." - ".$vendor->domain }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    </select>
+                </div>
+            </form>
+            <hr>
+        </div>
+        @endsection
+
+        @section('PageCSS')
+            <link rel="stylesheet" type="text/css" href="{{ asset('c3/css/c3.css') }}">
+            <link rel="stylesheet" type="text/css" href="{{ asset('css/core/menu/menu-types/vertical-menu.css') }}">
+            <link rel="stylesheet" type="text/css" href="{{ asset('css/core/colors/palette-gradient.css') }}">
+            <!-- vendor css files -->
+            <link rel="stylesheet" href="{{ asset('vendors/css/pickers/pickadate/pickadate.css') }}">
+            @if(Auth::user()->profile->profile_mode == 'dark-layout')
+                <link rel="stylesheet" type="text/css" href="{{ asset('c3/css/c3-dark.css') }}">
+                <link rel="stylesheet" type="text/css" href="{{ asset('datatimepicker/bootstrap-datetimepicker-dark.css') }}" />
+            @endif
+            <link rel="stylesheet" href="{{ asset('formvalidation/tachyons.min.css') }}">
+        @endsection
+
+        @section('VendorCSS')
+            <link rel="stylesheet" type="text/css" href="{{ asset('datatimepicker/bootstrap-datetimepicker.css') }}" />
+            <link rel="stylesheet" type="text/css" href="{{ asset('vendors/css/tables/datatable/datatables.min.css') }}">
+        @endsection
+
+        @section('PageVendorJS')
+            <script type="text/javascript" src="{{ asset('daterangepicker/moment.min.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('datatimepicker/bootstrap-datetimepicker.min.js') }}"></script>
+        @endsection
+
+        @section('PageJS')
+            <script>
+                {{--var access = 'yes';
+                @if(sizeof($vendors) == 0 )
+                    access = 'no';
+                @endif--}}
+            </script>
+            <!-- Load d3.js and c3.js -->
+            <script src="{{ asset('c3/d3.v5.min.js') }}" charset="utf-8"></script>
+            <script src="{{ asset('c3/js/c3.min.js') }}"></script>
+            <script src="{{ asset('js/validation/executiveDashboard/visual2.js') }}"></script>
+            @if(Auth::user()->roles()->get()->first()->role_id == 1)
+                <script src="{{ asset('js/validation/executiveDashboard/poPlan.js') }}"></script>
+            @endif
+@endsection
+
+@section('model')
+    @if(Auth::user()->roles()->get()->first()->role_id == 1)
+    <!-- Modal -->
+    <div class="modal fade text-left" id="poPlanModal" tabindex="-1" role="dialog" aria-labelledby="poPlanModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Set PO plan</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" id="po_plan_form">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            @csrf
+                        </div>
+                        <div class="form-group">
+                            <span id="form_result"></span>
+                        </div>
+                        <div class="form-group">
+                            <input id="po_value" type="number" class="form-control" name="po_value" placeholder="PO Value" autocomplete="po_value" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <input id="po_unit" type="number" class="form-control" name="po_unit" placeholder="PO Unit"  autocomplete="po_unit">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" name="po_plan_action_button" id="po_plan_action_button" class="btn btn-warning" value="Save" />
+                        <button hidden id="po_plan_action_button_loader" class="btn btn-warning waves-effect waves-light" type="button">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading ...
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {{ __('Cancel') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+@endsection
